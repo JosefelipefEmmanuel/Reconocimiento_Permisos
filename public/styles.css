@@ -1,0 +1,174 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.navbar {
+    background-color: #3498db !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-success {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+.btn-success:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+#camera {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+
+#video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+}
+
+#camera canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+#custom-alert {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #3498db;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #333;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 0;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #eaf2f8;
+}
+
+.nav-tabs .nav-link.active {
+    color: #3498db;
+    background-color: transparent;
+    border-bottom: 2px solid #3498db;
+}
+
+.nav-pills .nav-link {
+    color: #3498db;
+    background-color: #f8f9fa;
+    border: 1px solid #3498db;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #eaf2f8;
+}
+
+.nav-pills .nav-link.active {
+    color: #fff;
+    background-color: #3498db;
+}
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+}
+
+/* Footer Styles */
+.footer {
+    margin-top: auto;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.footer h5 {
+    color: #3498db;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer h5::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 2px;
+    background-color: #3498db;
+}
+
+.hover-effect {
+    transition: all 0.3s ease;
+    opacity: 0.9;
+}
+
+.hover-effect:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+    color: #3498db !important;
+}
+
+.footer hr {
+    opacity: 0.2;
+}
+
+@media (max-width: 768px) {
+    .footer {
+        text-align: center;
+    }
+    
+    .footer h5::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+
+

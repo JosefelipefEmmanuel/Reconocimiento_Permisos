@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento Facial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-id-card me-2"></i>
+            Verificación Facial
+        </a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div id="empresa-selection" class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Seleccine su Empresa</h2>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="searchEmpresa" class="form-control" placeholder="Buscar...">
+                    </div>
+                    <select id="empresaSelect" class="form-select mb-3"></select>
+                    <!-- placeholder para errores al cargar empresas -->
+                    <p id="error-message" class="text-danger mb-3"></p>
+                    <button id="selectEmpresa" class="btn btn-primary w-100">
+                        <i class="fas fa-check-circle me-2"></i>Seleccionar
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="main-content" class="container mt-4" style="display: none;">
+    <ul class="nav nav-pills nav-fill mb-3" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="reconocimiento-tab" data-bs-toggle="pill" data-bs-target="#reconocimiento" type="button" role="tab"> <i class="fas fa-camera me-2"></i>Reconocimiento Facial</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="registro-tab" data-bs-toggle="pill" data-bs-target="#registro" type="button" role="tab">
+                <i class="fas fa-user-plus me-2"></i>Registrar Usuario
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="reconocimiento" role="tabpanel">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Verificación del rostro por medio de la cámara</h2>
+
+                    <!-- Selector de tipo de registro -->
+                    <div class="mb-3">
+                        <label for="tipoRegistro" class="form-label">Tipo de Registro:</label>
+                        <select id="tipoRegistro" class="form-select" required>
+                            <option value="">-- Seleccionar --</option>
+                            <option value="entrada">Entrada</option>
+                            <option value="salida">Salida</option>
+                        </select>
+                    </div>
+
+                    <div id="camera" class="mb-3">
+                        <video id="video" class="w-100" autoplay muted></video>
+                    </div>
+                    <button id="start-camera" class="btn btn-primary w-100 mb-3">Activar Cámara</button>
+                    <div id="recognition-result" class="alert alert-info" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="registro" role="tabpanel">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Agregar Usuario</h2>
+                    <form id="user-form" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label for="areaSelect" class="form-label">Área:</label>
+                            <select id="areaSelect" name="areaId" class="form-select" required>
+                                <option value="">-- Seleccionar Área --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nombre:</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cedula" class="form-label">DPI:</label>
+                            <input type="text" id="cedula" name="cedula" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cargo" class="form-label">Rol:</label>
+                            <input type="text" id="cargo" name="cargo" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Foto:</label>
+                            <input type="file" id="photo" name="photo" class="form-control" accept="image/*" required>
+                            <button type="button" class="btn btn-secondary mt-2" id="take-photo-btn">
+                                <i class="fas fa-camera"></i> Tomar Foto con Cámara
+                            </button>
+                            <video id="camera-preview" autoplay muted style="display: none; width: 100%; max-height: 200px; margin-top: 10px; border-radius: 6px;"></video>
+                            <img id="preview-image" src="#" class="img-thumbnail mt-2" style="display:none; max-width: 200px;">
+                        </div>
+                        <button type="submit" id="submit-button" class="btn btn-success w-100">Agregar Usuario</button>
+                    </form>
+                    <p id="loading-message" class="mt-3" style="display: none;">Agregando usuario, por favor espera...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="custom-alert" class="alert alert-success position-fixed top-50 start-50 translate-middle" style="display:none; z-index:1000;">
+    Usuario registrado exitosamente
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
+
+<script>
+    const DEVICE_CODE = '03';
+</script>
+
+<script defer src="script.js"></script>
+<script>
+    document.getElementById('take-photo-btn').addEventListener('click', async () => {
+        const video = document.getElementById('camera-preview');
+        video.style.display = 'block';
+
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+
+        setTimeout(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            stream.getTracks().forEach(track => track.stop());
+            video.style.display = 'none';
+
+            canvas.toBlob(blob => {
+                const file = new File([blob], "captured.jpg", { type: 'image/jpeg' });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                const input = document.getElementById('photo');
+                input.files = dataTransfer.files;
+
+                const preview = document.getElementById('preview-image');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }, 'image/jpeg', 0.8);
+        }, 1000);
+    });
+</script>
+</body>
+</html>

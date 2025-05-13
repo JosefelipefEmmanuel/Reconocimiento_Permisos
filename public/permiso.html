@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Autorizar Permiso de Accesos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+    h2 {
+      text-align: center;
+      color: #111827;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 1.2rem;
+      transition: border-color 0.2s ease-in-out;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    button {
+      width: 100%;
+      background-color: #4f46e5;
+      color: white;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #4338ca;
+    }
+    #cerrarSesionBtn {
+      background-color: #ef4444;
+      margin-top: 1rem;
+    }
+    #cerrarSesionBtn:hover {
+      background-color: #dc2626;
+    }
+    #revocarPermisoBtn {
+      background-color: #ef4444;
+      margin-top: 10px;
+    }
+    #revocarPermisoBtn:hover {
+      background-color: #b91c1c;
+    }
+    #resultado {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 600;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div id="login-section">
+    <h2>Iniciar Sesión</h2>
+    <form id="login-form">
+      <label for="usuario">Usuario:</label>
+      <input type="text" id="usuario" required>
+
+      <label for="contrasena">Contraseña:</label>
+      <input type="password" id="contrasena" required>
+
+      <button type="submit">Entrar</button>
+    </form>
+    <div id="login-error" style="color: red; margin-top: 10px; text-align: center;"></div>
+  </div>
+
+  <div id="permiso-section" class="hidden">
+    <h2>Gestionar Permiso</h2>
+    <form id="permiso-form">
+      <label for="usuarioPermiso">Selecciona el Usuario:</label>
+      <select id="usuarioPermiso" name="usuarioId" required></select>
+
+      <select id="zona" name="areaId" required>
+        <option value="" disabled selected>Selecciona una zona</option>
+        <option value="1">Recepción</option>
+        <option value="2">Almacén</option>
+        <option value="3">Oficinas</option>
+      </select>
+
+
+      <label for="fechaFin">Fecha de Vencimiento:</label>
+      <input type="datetime-local" id="fechaFin" name="fechaFin" required>
+
+      <button type="submit">Autorizar Permiso</button>
+      <button type="button" id="revocarPermisoBtn">Revocar Permiso</button>
+
+    </form>
+    <div id="resultado"></div>
+    <button id="cerrarSesionBtn">Cerrar sesión</button>
+  </div>
+</div>
+
+<script>
+  const loginForm = document.getElementById('login-form');
+  const loginSection = document.getElementById('login-section');
+  const permisoSection = document.getElementById('permiso-section');
+  const loginError = document.getElementById('login-error');
+
+  loginForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const usuario = document.getElementById('usuario').value;
+    const contrasena = document.getElementById('contrasena').value;
+
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: usuario, password: contrasena })
+    });
+
+    if (response.ok) {
+      loginSection.classList.add('hidden');
+      permisoSection.classList.remove('hidden');
+      cargarUsuarios();
+      cargarAreas(); // 👈 Se carga aquí las áreas al iniciar sesión
+    } else {
+      loginError.textContent = '❌ Usuario o contraseña incorrectos.';
+    }
+  });
+
+  async function cargarUsuarios() {
+    const select = document.getElementById('usuarioPermiso');
+    select.innerHTML = '';
+    try {
+      const response = await fetch('/get-users?empresaId=3');
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      const usuarios = await response.json();
+
+      if (usuarios.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = "No hay usuarios registrados.";
+        option.disabled = true;
+        option.selected = true;
+        select.appendChild(option);
+        return;
+      }
+
+      usuarios.forEach(usuario => {
+        const option = document.createElement('option');
+        option.value = usuario.id;
+        option.textContent = `${usuario.nombre} - ${usuario.cedula} - ${usuario.cargo}`;
+        select.appendChild(option);
+      });
+    } catch (error) {
+      const option = document.createElement('option');
+      option.textContent = `Error: ${error.message}`;
+      select.appendChild(option);
+    }
+  }
+
+  async function cargarAreas() {
+    const select = document.getElementById('zona');
+    select.innerHTML = '<option value="" disabled selected>Selecciona una zona</option>';
+    try {
+      const response = await fetch('/get-areas');
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      const areas = await response.json();
+
+      if (areas.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = "No hay áreas registradas.";
+        option.disabled = true;
+        select.appendChild(option);
+        return;
+      }
+
+      // ✅ CORREGIDO: Usamos area.id, NO area.nombre
+      areas.forEach(area => {
+        const option = document.createElement('option');
+        option.value = area.id;    // CORRECTO: id numérico
+        option.textContent = area.nombre;
+        select.appendChild(option);
+      });
+    } catch (error) {
+      const option = document.createElement('option');
+      option.textContent = `Error: ${error.message}`;
+      select.appendChild(option);
+    }
+  }
+
+  document.getElementById('permiso-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const usuarioId = document.getElementById('usuarioPermiso').value;
+    const areaId = document.getElementById('zona').value; // ⬅️ Este ahora es el ID correcto
+    const fechaFin = document.getElementById('fechaFin').value;
+
+    console.log({ usuarioId, areaId, fechaFin }); // ✅ Debes ver números
+
+    const respuesta = await fetch('/autorizar-permiso', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId, areaId, vencimiento: fechaFin }) // ✅ Enviar areaId correcto
+    });
+
+    const resultado = document.getElementById('resultado');
+    if (respuesta.ok) {
+      resultado.textContent = '✅ Permiso autorizado exitosamente';
+      resultado.style.color = 'green';
+    } else {
+      resultado.textContent = '❌ Error al autorizar el permiso';
+      resultado.style.color = 'red';
+    }
+  });
+
+
+  document.getElementById('revocarPermisoBtn').addEventListener('click', async function () {
+    const usuarioId = document.getElementById('usuarioPermiso').value;
+    const areaId = document.getElementById('zona').value;
+    if (!usuarioId || !areaId) return alert('Debe seleccionar usuario y zona');
+
+    const confirmacion = confirm("¿Estás seguro de que deseas revocar el permiso?");
+    if (!confirmacion) return;
+
+    const respuesta = await fetch('/revocar-permiso', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId, areaId })
+    });
+
+    const resultado = document.getElementById('resultado');
+    if (respuesta.ok) {
+      resultado.textContent = '✅ Permiso revocado exitosamente';
+      resultado.style.color = 'green';
+    } else {
+      resultado.textContent = '❌ Error al revocar el permiso';
+      resultado.style.color = 'red';
+    }
+  });
+
+
+  document.getElementById('cerrarSesionBtn').addEventListener('click', function () {
+    loginSection.classList.remove('hidden');
+    permisoSection.classList.add('hidden');
+    loginForm.reset();
+    document.getElementById('permiso-form').reset();
+    document.getElementById('usuarioPermiso').innerHTML = '';
+    document.getElementById('zona').innerHTML = '<option value="" disabled selected>Selecciona una zona</option>';
+    loginError.textContent = '';
+    document.getElementById('resultado').textContent = '';
+  });
+</script>
+
+</body>
+</html>
